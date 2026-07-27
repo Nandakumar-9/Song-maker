@@ -1,65 +1,41 @@
+---
+title: YT Audio Extractor
+emoji: 🎵
+colorFrom: purple
+colorTo: indigo
+sdk: gradio
+sdk_version: "4.44.0"
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # YT Audio Extractor 🎵
 
 A studio-quality YouTube Audio Extractor web application built with **FastAPI**, **yt-dlp**, **FFmpeg**, and modern glassmorphism frontend.
 
 ## Key Features
 
-- **320kbps Maximum Quality**: Extract YouTube audio streams at highest available bitrate and convert to 320kbps MP3 (preserving 44.1kHz / 48kHz sample rate).
-- **Source Stream Transparency**: Displays actual source codec bitrate (e.g. Opus 160kbps / AAC 128kbps) alongside 320kbps target MP3 conversion specs.
-- **Playlist Extraction**: Support for playlist URLs to extract all tracks as audio files and package into a `.zip` archive.
+- **320kbps Maximum Quality**: Extract YouTube audio streams at highest available bitrate and convert to 320kbps MP3.
+- **Playlist Extraction**: Support for playlist URLs — extracts all tracks and packages into a `.zip` archive.
+- **Real-Time Progress Tracking**: Live status messages, progress bar, transfer speed and ETA.
 - **Built-in Audio Player Preview**: Listen to processed audio before downloading directly from the UI.
-- **Real-Time Progress Tracking**: Live status messages, progress bar, transfer speed, and ETA calculation.
-- **Automatic Disk Cleanup**: Downloads folder automatically purges audio files older than 1 hour to conserve disk space.
-- **System FFmpeg Auto-Detection**: Friendly UI warning with instant 1-click command copying if FFmpeg is missing.
+- **Automatic Disk Cleanup**: Downloads folder auto-purges files older than 1 hour.
 
----
-
-## 🛠️ Prerequisites
-
-### 1. Python
-Ensure Python 3.9+ is installed. (Check with `py --version`).
-
-### 2. FFmpeg (Required for MP3 Conversion)
-yt-dlp uses FFmpeg to convert YouTube audio streams into MP3 format.
-
-- **Windows (Recommended)**:
-  Run in PowerShell or Command Prompt:
-  ```powershell
-  winget install ffmpeg
-  ```
-  *(Restart terminal after installing so system PATH refreshes)*
-
-- **macOS**:
-  ```bash
-  brew install ffmpeg
-  ```
-
-- **Linux (Ubuntu/Debian)**:
-  ```bash
-  sudo apt update && sudo apt install ffmpeg -y
-  ```
-
----
-
-## 🚀 Quick Start Instructions
+## 🛠️ Local Setup
 
 ### 1. Install Dependencies
-In project root directory, run:
 ```bash
-py -m pip install -r backend/requirements.txt
+py -m pip install -r requirements.txt
 ```
 
-### 2. Launch the Application Server
-Run Uvicorn server:
+### 2. Run the Server
 ```bash
-py -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+py app.py
 ```
 
 ### 3. Open in Browser
-Open your browser and navigate to:
-👉 **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
-
----
+👉 **[http://127.0.0.1:7860](http://127.0.0.1:7860)**
 
 ## 📂 Project Structure
 
@@ -67,11 +43,12 @@ Open your browser and navigate to:
 .
 ├── backend/
 │   ├── main.py            # FastAPI API server & yt-dlp conversion logic
-│   └── requirements.txt   # Dependencies (fastapi, uvicorn, yt-dlp, pydantic)
+│   └── requirements.txt   # Backend dependencies
 ├── frontend/
-│   ├── index.html         # Modern web application UI
-│   ├── style.css          # Glassmorphism dark mode design system
+│   ├── index.html         # Modern glassmorphism UI
+│   ├── style.css          # Dark mode design system
 │   └── app.js             # Polling & UI interactive controller
-├── downloads/             # Temporary converted files storage
-└── README.md
+├── downloads/             # Temporary converted files (auto-purged after 1hr)
+├── app.py                 # Entry point
+└── requirements.txt       # All dependencies
 ```
