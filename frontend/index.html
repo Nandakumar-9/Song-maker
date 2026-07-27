@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Audio Extractor - High Quality MP3 Converter</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i data-lucide="music"></i>
+                </div>
+                <div class="brand-text">
+                    <h1>YT Audio Extractor</h1>
+                    <p>Convert YouTube Videos & Playlists to Clean MP3 Audio</p>
+                </div>
+            </div>
+            <div class="header-badge">
+                <span class="badge-dot"></span>
+                <span>Fast & Reliable MP3</span>
+            </div>
+        </header>
+
+        <!-- System Warning Banner (If FFmpeg Missing) -->
+        <div id="ffmpegAlert" class="alert-card warning hidden">
+            <div class="alert-icon"><i data-lucide="alert-triangle"></i></div>
+            <div class="alert-content">
+                <h4>FFmpeg Requirement Notice</h4>
+                <p>FFmpeg is required to convert YouTube audio streams to MP3 format. Run this command in PowerShell to install:</p>
+                <div class="code-box">
+                    <code>winget install ffmpeg</code>
+                    <button id="copyCmdBtn" title="Copy Command"><i data-lucide="copy"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Extractor Card -->
+        <main class="extractor-card">
+            <!-- URL Input Form -->
+            <form id="extractForm" class="extract-form">
+                <div class="input-group">
+                    <div class="input-icon">
+                        <i data-lucide="youtube"></i>
+                    </div>
+                    <input 
+                        type="url" 
+                        id="youtubeUrl" 
+                        placeholder="Paste YouTube Video or Playlist URL here..." 
+                        required 
+                        autocomplete="off"
+                        spellcheck="false"
+                    />
+                    <button type="button" id="pasteBtn" class="paste-btn" title="Paste from clipboard">
+                        <i data-lucide="clipboard"></i>
+                    </button>
+                </div>
+
+                <!-- Quality Selector -->
+                <div class="quality-selector">
+                    <label>Audio Quality Setting:</label>
+                    <div class="quality-options">
+                        <label class="quality-option active">
+                            <input type="radio" name="quality" value="192" checked>
+                            <div class="option-content">
+                                <span class="q-bitrate">192 kbps</span>
+                                <span class="q-label">High Quality (Recommended)</span>
+                            </div>
+                        </label>
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="320">
+                            <div class="option-content">
+                                <span class="q-bitrate">320 kbps</span>
+                                <span class="q-label">Ultra High Quality</span>
+                            </div>
+                        </label>
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="128">
+                            <div class="option-content">
+                                <span class="q-bitrate">128 kbps</span>
+                                <span class="q-label">Standard Quality</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="primary-btn">
+                    <span class="btn-text">Extract Audio</span>
+                    <i data-lucide="sparkles"></i>
+                </button>
+            </form>
+
+            <!-- Loading & Progress Section -->
+            <div id="progressSection" class="progress-section hidden">
+                <div class="status-header">
+                    <div class="status-pulse"></div>
+                    <span id="statusMessage" class="status-message">Analyzing YouTube stream...</span>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div id="progressBar" class="progress-bar" style="width: 0%;"></div>
+                </div>
+
+                <div class="metrics-row">
+                    <span id="progressPercent" class="metric-value">0%</span>
+                    <div class="sub-metrics">
+                        <span id="speedMetric"><i data-lucide="download-cloud"></i> -- KB/s</span>
+                        <span id="etaMetric"><i data-lucide="clock"></i> ETA: --</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Preview Card (Single Video) -->
+            <div id="resultCard" class="result-card hidden">
+                <div class="video-preview">
+                    <div class="thumbnail-wrapper">
+                        <img id="videoThumbnail" src="" alt="Video Thumbnail" />
+                        <span id="videoDuration" class="duration-badge">00:00</span>
+                    </div>
+                    <div class="video-details">
+                        <h3 id="videoTitle" class="video-title">Video Title</h3>
+                        <p id="videoChannel" class="video-channel">Channel Name</p>
+                        
+                        <div class="specs-pills">
+                            <div class="spec-pill">
+                                <i data-lucide="disc"></i>
+                                <span id="outputSpec">192kbps MP3</span>
+                            </div>
+                            <div class="spec-pill">
+                                <i data-lucide="activity"></i>
+                                <span id="sourceSpec">Source: Audio Stream</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audio Preview Player -->
+                <div class="audio-player-container">
+                    <label><i data-lucide="play-circle"></i> Audio Preview:</label>
+                    <audio id="audioPreview" controls preload="metadata"></audio>
+                </div>
+
+                <!-- Download Actions -->
+                <div class="action-buttons">
+                    <a id="downloadBtn" href="#" download class="download-btn">
+                        <i data-lucide="download"></i>
+                        <span>Download Audio</span>
+                    </a>
+                    <button id="resetBtn" class="secondary-btn">
+                        <i data-lucide="refresh-cw"></i>
+                        <span>Extract Another</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Playlist Result Card -->
+            <div id="playlistCard" class="result-card hidden">
+                <div class="playlist-preview">
+                    <div class="playlist-icon">
+                        <i data-lucide="list-music"></i>
+                    </div>
+                    <div class="playlist-details">
+                        <h3 id="playlistTitle">Playlist Title</h3>
+                        <p id="playlistCount">0 tracks converted</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <a id="playlistDownloadBtn" href="#" download class="download-btn">
+                        <i data-lucide="archive"></i>
+                        <span>Download Playlist (ZIP)</span>
+                    </a>
+                    <button id="playlistResetBtn" class="secondary-btn">
+                        <i data-lucide="refresh-cw"></i>
+                        <span>Extract Another</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Display -->
+            <div id="errorCard" class="alert-card error hidden">
+                <div class="alert-icon"><i data-lucide="x-circle"></i></div>
+                <div class="alert-content">
+                    <h4>Extraction Failed</h4>
+                    <p id="errorMessage">An error occurred during audio processing.</p>
+                    <button id="errorRetryBtn" class="retry-btn">
+                        <i data-lucide="rotate-ccw"></i> Try Again
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>YT Audio Extractor • yt-dlp & FFmpeg Engine • Temporary Files Purged After 1 Hour</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
